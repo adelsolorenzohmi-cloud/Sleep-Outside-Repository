@@ -1,28 +1,13 @@
-import { getLocalStorage } from "./utils.mjs";
+import { loadHeaderFooter } from "./utils.mjs";
+import ShoppingCart from "./ShoppingCart.mjs";
 
-function renderCartContents() {
-  const cartItems = getLocalStorage("so-cart");
-  const htmlItems = cartItems.map((item) => cartItemTemplate(item));
-  document.querySelector(".product-list").innerHTML = htmlItems.join("");
-}
+// 1. Load the consistent header and footer
+loadHeaderFooter();
 
-function cartItemTemplate(item) {
-  const newItem = `<li class="cart-card divider">
-  <a href="#" class="cart-card__image">
-    <img
-      src="${item.Image}"
-      alt="${item.Name}"
-    />
-  </a>
-  <a href="#">
-    <h2 class="card__name">${item.Name}</h2>
-  </a>
-  <p class="cart-card__color">${item.Colors[0].ColorName}</p>
-  <p class="cart-card__quantity">qty: 1</p>
-  <p class="cart-card__price">$${item.FinalPrice}</p>
-</li>`;
+// 2. Initialize the ShoppingCart class
+// Parameter 1: The localStorage key (usually "so-cart")
+// Parameter 2: The parent element where the cart list should be rendered
+const cart = new ShoppingCart("so-cart", document.querySelector(".product-list"));
 
-  return newItem;
-}
-
-renderCartContents();
+// 3. Execute the rendering logic
+cart.init();
