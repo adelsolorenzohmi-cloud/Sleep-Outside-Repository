@@ -21,11 +21,16 @@ export default class ProductList {
     }
 
     async init() {
+        const list = await this.dataSource.getData();
+        this.renderList(list);
+    }
+
+    /*async init() {
         this.listElement.innerHTML = "";
         const list = await this.dataSource.getData();
         const filteredList = this.filterList(list);
         this.renderList(filteredList);
-    }
+    }*/
 
     filterList(list) {
         const importantTents = ["880RR", "985RF", "985PR", "344YJ"];
