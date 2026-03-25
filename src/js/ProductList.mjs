@@ -19,12 +19,13 @@ export default class ProductList {
     }
 
     async init() {
-        const list = await this.dataSource.getData(this.category);
-        // Show all if it's a category page, or top 4 for homepage
-        const filteredList = this.category === "tents" && window.location.pathname.endsWith("index.html")
-            ? list.slice(0, 4)
-            : list;
+        const list = await this.dataSource.getData(this.category || "tents");
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryInUrl = urlParams.get("category");
 
+        const filteredList = categoryInUrl ? list : list.slice(0, 4);
+
+        // 3. Render the result
         this.renderList(filteredList);
     }
 
