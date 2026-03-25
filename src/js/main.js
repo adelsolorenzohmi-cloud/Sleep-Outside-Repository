@@ -1,14 +1,20 @@
-import ProductData from "./ProductData.mjs";
-import ProductList from "./ProductList.mjs";
+import ExternalServices from "./ExternalServices.mjs";
+import ProductList from "./productList.mjs";
 import { loadHeaderFooter } from "./utils.mjs";
 
-// Load the header and footer partials into the page
-loadHeaderFooter();
+async function init() {
+    // 1. Load templates
+    await loadHeaderFooter();
 
-const dataSource = new ProductData("tents");
+    // 2. Initialize products
+    const dataSource = new ExternalServices();
+    const listElement = document.querySelector(".product-list");
 
-const element = document.querySelector(".product-list");
+    if (listElement) {
+        // 'tents' is the category passed to ProductList
+        const productList = new ProductList("tents", dataSource, listElement);
+        productList.init();
+    }
+}
 
-const productList = new ProductList("Tents", dataSource, element);
-
-productList.init();
+init();

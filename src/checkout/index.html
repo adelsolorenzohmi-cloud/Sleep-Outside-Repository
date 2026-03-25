@@ -18,8 +18,36 @@
 
 
   <main class="divider">
-    <section class="products">
+    <section class="checkout-form">
       <h2>Review & Place your Order</h2>
+      <form name="checkout">
+        <fieldset>
+          <legend>Shipping Address</legend>
+          <label>First Name <input type="text" name="fname" required></label>
+          <label>Last Name <input type="text" name="lname" required></label>
+          <label>Street <input type="text" name="street" required></label>
+          <label>City <input type="text" name="city" required></label>
+          <label>State <input type="text" name="state" required></label>
+          <label>Zip <input type="text" name="zip" required></label>
+        </fieldset>
+        <fieldset>
+          <legend>Payment</legend>
+          <label>Card Number <input type="text" name="cardNumber" required minlength="16" maxlength="16"></label>
+          <label>Expiration <input type="text" name="expiration" required placeholder="mm/yy"></label>
+          <label>Code <input type="text" name="code" required minlength="3" maxlength="3"></label>
+        </fieldset>
+        <button id="checkoutSubmit" type="submit">Checkout</button>
+      </form>
+
+      <section class="order-summary">
+        <h2>Order Summary</h2>
+        <ul>
+          <li>Item Subtotal: <span id="itemTotal"></span></li>
+          <li>Shipping Estimate: <span id="shipping"></span></li>
+          <li>Tax: <span id="tax"></span></li>
+          <li>Order Total: <span id="orderTotal"></span></li>
+        </ul>
+      </section>
     </section>
   </main>
 
