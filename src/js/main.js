@@ -1,5 +1,5 @@
 import ExternalServices from "./ExternalServices.mjs";
-import ProductList from "./productList.mjs";
+import ProductList from "./ProductList.mjs";
 import { loadHeaderFooter } from "./utils.mjs";
 
 async function init() {
@@ -11,7 +11,6 @@ async function init() {
     const listElement = document.querySelector(".product-list");
 
     if (listElement) {
-        // 'tents' is the category passed to ProductList
         const productList = new ProductList("tents", dataSource, listElement);
         productList.init();
     }

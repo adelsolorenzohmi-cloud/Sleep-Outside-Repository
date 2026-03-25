@@ -1,15 +1,14 @@
-import ProductData from "./ExternalServices.mjs";
+import ExternalServices from "./ExternalServices.mjs";
 import ProductDetails from "./ProductDetails.mjs";
 import { getParam, loadHeaderFooter } from "./utils.mjs";
 
-// 1. Load the header and footer templates
-loadHeaderFooter();
+async function init() {
+    await loadHeaderFooter();
+    const productId = getParam("product");
+    const dataSource = new ExternalServices();
 
-const dataSource = new ProductData("tents");
+    const product = new ProductDetails(productId, dataSource);
+    product.init();
+}
 
-// 2. Get the product ID from the URL
-const productId = getParam("product");
-
-// 3. Initialize the ProductDetails class
-const product = new ProductDetails(productId, dataSource);
-product.init();
+init();

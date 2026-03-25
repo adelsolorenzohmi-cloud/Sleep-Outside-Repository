@@ -12,19 +12,20 @@ async function convertToJson(res) {
 export default class ExternalServices {
   constructor() { }
 
+  // Requirement: Pulling from an API using category parameter
   async getData(category) {
     const response = await fetch(`${baseURL}products/search/${category}`);
     const data = await convertToJson(response);
     return data.Result;
   }
 
+  // Requirement: Update findProductById for the detail page
   async findProductById(id) {
     const response = await fetch(`${baseURL}product/${id}`);
     const data = await convertToJson(response);
     return data.Result;
   }
 
-  // New POST method for checkout
   async checkout(payload) {
     const options = {
       method: "POST",
