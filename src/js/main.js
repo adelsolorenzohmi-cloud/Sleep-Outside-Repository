@@ -3,15 +3,19 @@ import ProductList from "./ProductList.mjs";
 import { loadHeaderFooter } from "./utils.mjs";
 
 async function init() {
-    // 1. Load templates
+    // 1. Load header and footer first
     await loadHeaderFooter();
 
-    // 2. Initialize products
+    // 2. Initialize the data source
     const dataSource = new ExternalServices();
+
+    // 3. Find where the products should go
     const listElement = document.querySelector(".product-list");
 
     if (listElement) {
-        const productList = new ProductList("tents", dataSource, listElement);
+        // Pass 'null' for the category on the landing page.
+        // This tells ProductList.mjs to default to 'tents' AND slice(0, 4).
+        const productList = new ProductList(null, dataSource, listElement);
         productList.init();
     }
 }

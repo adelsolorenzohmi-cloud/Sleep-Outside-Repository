@@ -2,8 +2,18 @@ export function qs(selector, parent = document) {
   return parent.querySelector(selector);
 }
 
+// FIX: Always return an array [] to prevent ".push" or ".map" crashes
 export function getLocalStorage(key) {
-  return JSON.parse(localStorage.getItem(key));
+  const data = localStorage.getItem(key);
+  if (data && data !== "undefined") {
+    try {
+      return JSON.parse(data);
+    } catch (e) {
+      console.error("Error parsing JSON from localStorage", e);
+      return [];
+    }
+  }
+  return [];
 }
 
 export function setLocalStorage(key, data) {
@@ -17,6 +27,7 @@ export function getParam(param) {
 }
 
 export function renderListWithTemplate(templateFn, parentElement, list, position = "afterbegin", clear = false) {
+  if (!parentElement) return;
   if (clear) {
     parentElement.innerHTML = "";
   }
@@ -25,24 +36,71 @@ export function renderListWithTemplate(templateFn, parentElement, list, position
 }
 
 export function renderWithTemplate(template, parentElement, data, callback) {
-  parentElement.insertAdjacentHTML("afterbegin", template);
-  if (callback) {
-    callback(data);
+  if (parentElement) {
+    parentElement.insertAdjacentHTML("afterbegin", template);
+    if (callback) {
+      callback(data);
+    }
   }
 }
 
+// --- TEMPLATE LOADING FUNCTIONS ---
+
 export async function loadTemplate(path) {
   const res = await fetch(path);
-  if (!res.ok) throw new Error(`Could not load template at ${path}`);
-  return await res.text();
+  if (!res.ok) {
+    throw new Error(`Could not load template at ${path}`);
+  }
+  const template = await res.text();
+  return template;
 }
 
 export async function loadHeaderFooter() {
-  const headerTemplate = await loadTemplate("/partials/header.html");
-  const footerTemplate = await loadTemplate("/partials/footer.html");
-  const headerElement = document.querySelector("#main-header");
-  const footerElement = document.querySelector("#main-footer");
+  try {
+    const headerTemplate = await loadTemplate("/partials/header.html");
+    const footerTemplate = await loadTemplate("/partials/footer.html");
 
-  if (headerElement) renderWithTemplate(headerTemplate, headerElement);
-  if (footerElement) renderWithTemplate(footerTemplate, footerElement);
+    const headerElement = document.querySelector("#main-header");
+    const footerElement = document.querySelector("#main-footer");
+
+    // Use innerHTML so we don't get double headers/footers
+    if (headerElement) headerElement.innerHTML = headerTemplate;
+    if (footerElement) footerElement.innerHTML = footerTemplate;
+
+  } catch (error) {
+    console.error("Error loading header/footer:", error);
+  }
+}
+
+// --- UI UTILITIES ---
+
+export function alertMessage(message, scroll = true) {
+  // 1. Remove any existing alerts so they don't stack up visually
+  const existingAlerts = document.querySelectorAll(".alert");
+  existingAlerts.forEach(alert => alert.remove());
+
+  const alert = document.createElement("div");
+  alert.classList.add("alert");
+  // Use a template literal to keep the HTML clean
+  alert.innerHTML = `<p>${message}</p><span>X</span>`;
+
+  alert.addEventListener("click", function (e) {
+    if (e.target.tagName === "SPAN") {
+      this.parentElement.removeChild(this);
+    }
+  });
+
+  const main = document.querySelector("main");
+  if (main) {
+    main.prepend(alert);
+    // Requirement: Ensure the user sees the message immediately
+    if (scroll) window.scrollTo(0, 0);
+  }
+
+  // 2. Auto-remove after 4 seconds for a better user experience
+  setTimeout(() => {
+    if (alert.parentElement) {
+      alert.parentElement.removeChild(alert);
+    }
+  }, 4000);
 }

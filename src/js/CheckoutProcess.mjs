@@ -1,25 +1,7 @@
-import { getLocalStorage, setLocalStorage } from "./utils.mjs";
 import ExternalServices from "./ExternalServices.mjs";
+import { getLocalStorage, setLocalStorage, alertMessage } from "./utils.mjs";
 
 const services = new ExternalServices();
-
-function formDataToJSON(formElement) {
-    const formData = new FormData(formElement),
-        convertedJSON = {};
-    formData.forEach(function (value, key) {
-        convertedJSON[key] = value;
-    });
-    return convertedJSON;
-}
-
-function packageItems(items) {
-    return items.map((item) => ({
-        id: item.Id,
-        price: item.FinalPrice,
-        name: item.Name,
-        quantity: 1,
-    }));
-}
 
 export default class CheckoutProcess {
     constructor(key, outputSelector) {
@@ -38,40 +20,78 @@ export default class CheckoutProcess {
     }
 
     calculateItemSummary() {
-        const summaryElement = document.querySelector(`${this.outputSelector} #itemTotal`);
+        // 1. Subtotal
         this.itemTotal = this.list.reduce((sum, item) => sum + item.FinalPrice, 0);
-        summaryElement.innerText = `$${this.itemTotal.toFixed(2)}`;
-    }
 
-    calculateOrderTotal() {
+        // 2. Shipping ($10 for first item, $2 for each additional)
         this.shipping = 10 + (this.list.length - 1) * 2;
-        this.tax = (this.itemTotal * 0.06);
-        this.orderTotal = this.itemTotal + this.shipping + this.tax;
+
+        // 3. Tax (6%)
+        this.tax = (this.itemTotal * 0.06).toFixed(2);
+
+        // 4. Order Total
+        this.orderTotal = (
+            parseFloat(this.itemTotal) +
+            parseFloat(this.shipping) +
+            parseFloat(this.tax)
+        ).toFixed(2);
+
         this.displayOrderTotals();
     }
 
     displayOrderTotals() {
-        document.querySelector(`${this.outputSelector} #shipping`).innerText = `$${this.shipping.toFixed(2)}`;
-        document.querySelector(`${this.outputSelector} #tax`).innerText = `$${this.tax.toFixed(2)}`;
-        document.querySelector(`${this.outputSelector} #orderTotal`).innerText = `$${this.orderTotal.toFixed(2)}`;
+        const subtotalEl = document.querySelector("#itemSubtotal");
+        const shippingEl = document.querySelector("#shipping");
+        const taxEl = document.querySelector("#tax");
+        const orderTotalEl = document.querySelector("#orderTotal");
+
+        if (subtotalEl) subtotalEl.innerText = `$${this.itemTotal.toFixed(2)}`;
+        if (shippingEl) shippingEl.innerText = `$${this.shipping}`;
+        if (taxEl) taxEl.innerText = `$${this.tax}`;
+        if (orderTotalEl) orderTotalEl.innerText = `$${this.orderTotal}`;
     }
 
     async checkout() {
         const formElement = document.forms["checkout"];
         const json = formDataToJSON(formElement);
 
-        // Add extra required fields
         json.orderDate = new Date();
-        json.orderTotal = this.orderTotal.toFixed(2);
-        json.tax = this.tax.toFixed(2);
+        json.orderTotal = this.orderTotal;
+        json.tax = this.tax;
         json.shipping = this.shipping;
         json.items = packageItems(this.list);
 
         try {
             const res = await services.checkout(json);
-            console.log(res);
+            setLocalStorage("so-cart", []);
+            location.assign("/checkout/success.html");
         } catch (err) {
-            console.log(err);
+            // Clear old alerts to prevent stacking like in your previous screenshot
+            const existingAlerts = document.querySelectorAll(".alert");
+            existingAlerts.forEach(alert => alert.remove());
+
+            // The API returns errors as an object, we loop through them
+            for (let key in err.message) {
+                alertMessage(err.message[key]);
+            }
         }
     }
+}
+
+function formDataToJSON(formElement) {
+    const formData = new FormData(formElement),
+        convertedJSON = {};
+    formData.forEach(function (value, key) {
+        convertedJSON[key] = value;
+    });
+    return convertedJSON;
+}
+
+function packageItems(items) {
+    return items.map((item) => ({
+        id: item.Id,
+        price: item.FinalPrice,
+        name: item.Name,
+        quantity: 1,
+    }));
 }

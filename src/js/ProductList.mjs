@@ -13,23 +13,35 @@ function productCardTemplate(product) {
 
 export default class ProductList {
     constructor(category, dataSource, listElement) {
+        // We pass the category from the URL into here
         this.category = category;
         this.dataSource = dataSource;
         this.listElement = listElement;
     }
 
     async init() {
-        const list = await this.dataSource.getData(this.category || "tents");
+        // 1. Determine the category to fetch. 
+        // If this.category is null (Landing Page), we default to "tents".
+        const categoryToFetch = this.category || "tents";
+
+        // 2. Fetch the data from the API
+        const list = await this.dataSource.getData(categoryToFetch);
+
+        // 3. Logic: Determine if we are on the Landing Page or a Category Page
+        // We check the URL for the "?category=" parameter
         const urlParams = new URLSearchParams(window.location.search);
         const categoryInUrl = urlParams.get("category");
 
+        // If no category in URL, it's the Landing Page -> Show only 4
+        // Otherwise, it's a specific Category Page -> Show all
         const filteredList = categoryInUrl ? list : list.slice(0, 4);
 
-        // 3. Render the result
+        // 4. Render the final list
         this.renderList(filteredList);
     }
 
     renderList(list) {
+        // Uses the utility function to inject the HTML into the DOM
         renderListWithTemplate(productCardTemplate, this.listElement, list, "afterbegin", true);
     }
 }
