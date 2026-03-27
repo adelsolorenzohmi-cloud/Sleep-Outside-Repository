@@ -1,4 +1,4 @@
-import { getLocalStorage, setLocalStorage } from "./utils.mjs";
+import { getLocalStorage, setLocalStorage, alertMessage } from "./utils.mjs";
 
 export default class ProductDetails {
     constructor(productId, dataSource) {
@@ -8,56 +8,49 @@ export default class ProductDetails {
     }
 
     async init() {
-        if (this.productId) {
-            this.product = await this.dataSource.findProductById(this.productId);
+        // 1. Get the product data
+        this.product = await this.dataSource.findProductById(this.productId);
 
-            if (this.product) {
-                this.renderProductDetails();
+        // 2. Draw the HTML to the page
+        this.renderProductDetails("main");
 
-                document
-                    .getElementById("addToCart")
-                    .addEventListener("click", this.addProductToCart.bind(this));
-            }
-        } else {
-            console.error("No product ID provided in URL");
+        // 3. ATTACH THE LISTENER (The button now exists in the DOM)
+        const addButton = document.getElementById("addToCart");
+        if (addButton) {
+            addButton.addEventListener("click", this.addToCart.bind(this));
         }
     }
 
-    addProductToCart() {
+    addToCart() {
         let cartItems = getLocalStorage("so-cart");
-
-        if (!Array.isArray(cartItems)) {
-            cartItems = [];
-        }
+        // Ensure we are working with an array
+        if (!Array.isArray(cartItems)) cartItems = [];
 
         cartItems.push(this.product);
         setLocalStorage("so-cart", cartItems);
 
-        // Instant redirect to the cart page
-        window.location.assign("../cart/index.html");
+        // Requirement: Professional UI Feedback
+        alertMessage(`${this.product.NameWithoutBrand} added to cart!`);
     }
 
-    renderProductDetails() {
-        productDetailsTemplate(this.product);
-    }
-}
-
-function productDetailsTemplate(product) {
-    document.querySelector("h2").textContent = product.Brand.Name;
-    document.querySelector("h3").textContent = product.NameWithoutBrand;
-
-    const productImage = document.getElementById("productImage");
-    if (productImage) {
-        productImage.src = product.Image;
-        productImage.alt = product.NameWithoutBrand;
+    renderProductDetails(selector) {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.innerHTML = this.prepareTemplate();
+        }
     }
 
-    document.getElementById("productPrice").textContent = `$${product.FinalPrice}`;
-    document.getElementById("productColor").textContent = product.Colors[0].ColorName;
-    document.getElementById("productDesc").innerHTML = product.DescriptionHtmlSimple;
-
-    const cartButton = document.getElementById("addToCart");
-    if (cartButton) {
-        cartButton.dataset.id = product.Id;
+    prepareTemplate() {
+        return `<section class="product-detail">
+      <h3>${this.product.Brand.Name}</h3>
+      <h2 class="divider">${this.product.NameWithoutBrand}</h2>
+      <img class="divider" src="${this.product.Images.PrimaryLarge}" alt="${this.product.NameWithoutBrand}" />
+      <p class="product-card__price">$${this.product.FinalPrice}</p>
+      <p class="product__color">${this.product.Colors[0].ColorName}</p>
+      <p class="product__description">${this.product.DescriptionHtmlSimple}</p>
+      <div class="product-detail__add">
+        <button id="addToCart" data-id="${this.product.Id}">Add to Cart</button>
+      </div>
+    </section>`;
     }
 }

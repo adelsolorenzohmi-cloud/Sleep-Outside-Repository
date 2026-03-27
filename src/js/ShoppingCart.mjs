@@ -1,9 +1,10 @@
 import { renderListWithTemplate, getLocalStorage } from "./utils.mjs";
 
 function cartItemTemplate(item) {
+    // FIX: Changed item.Image to item.Images.PrimaryMedium to match the API data
     return `<li class="cart-card divider">
     <a href="../product_pages/index.html?product=${item.Id}" class="cart-card__image">
-      <img src="${item.Image}" alt="${item.Name}" />
+      <img src="${item.Images.PrimaryMedium}" alt="${item.Name}" />
     </a>
     <a href="../product_pages/index.html?product=${item.Id}">
       <h2 class="card__name">${item.Name}</h2>
@@ -26,9 +27,16 @@ export default class ShoppingCart {
         if (cartItems && cartItems.length > 0) {
             this.renderCartContents(cartItems);
             this.calculateCartTotal(cartItems);
+
+            // NEW: Add the listener for the Checkout button here
+            const checkoutBtn = document.getElementById("checkoutButton");
+            if (checkoutBtn) {
+                checkoutBtn.addEventListener("click", () => {
+                    window.location.href = "../checkout/index.html";
+                });
+            }
         } else {
             this.parentElement.innerHTML = "<p>Your cart is empty.</p>";
-            // Hide the footer if the cart is empty
             const cartFooter = document.querySelector(".cart-footer");
             if (cartFooter) cartFooter.classList.add("hide");
         }

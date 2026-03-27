@@ -1,47 +1,47 @@
 import { renderListWithTemplate } from "./utils.mjs";
 
 function productCardTemplate(product) {
-    return `
-    <li class="product-card">
-      <a href="/product_pages/index.html?product=${product.Id}">
-        <img src="${product.Image}" alt="${product.Name}">
-        <h2 class="card__brand">${product.Brand.Name}</h2>
-        <h2 class="card__name">${product.Name}</h2>
-        <p class="product-card__price">$${product.FinalPrice}</p>
-      </a>
-    </li>
-    `;
+    return `<li class="product-card">
+    <a href="/product_pages/index.html?product=${product.Id}">
+        <img src="${product.Images.PrimaryMedium}" alt="Image of ${product.Name}">
+        <h3 class="card__brand">${product.Brand.Name}</h3>
+        <h2 class="card__name">${product.NameWithoutBrand}</h2>
+        <p class="product-card__price">$${product.ListPrice}</p>
+    </a>
+  </li>`;
 }
 
 export default class ProductList {
     constructor(category, dataSource, listElement) {
+        // We pass the category from the URL into here
         this.category = category;
         this.dataSource = dataSource;
         this.listElement = listElement;
     }
 
     async init() {
-        const list = await this.dataSource.getData();
-        this.renderList(list);
-    }
+        // 1. Determine the category to fetch. 
+        // If this.category is null (Landing Page), we default to "tents".
+        const categoryToFetch = this.category || "tents";
 
-    /*async init() {
-        this.listElement.innerHTML = "";
-        const list = await this.dataSource.getData();
-        const filteredList = this.filterList(list);
+        // 2. Fetch the data from the API
+        const list = await this.dataSource.getData(categoryToFetch);
+
+        // 3. Logic: Determine if we are on the Landing Page or a Category Page
+        // We check the URL for the "?category=" parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryInUrl = urlParams.get("category");
+
+        // If no category in URL, it's the Landing Page -> Show only 4
+        // Otherwise, it's a specific Category Page -> Show all
+        const filteredList = categoryInUrl ? list : list.slice(0, 4);
+
+        // 4. Render the final list
         this.renderList(filteredList);
-    }*/
-
-    filterList(list) {
-        const importantTents = ["880RR", "985RF", "985PR", "344YJ"];
-        return list.filter((item) => importantTents.includes(item.Id));
     }
 
     renderList(list) {
-        this.listElement.innerHTML = "";
-
+        // Uses the utility function to inject the HTML into the DOM
         renderListWithTemplate(productCardTemplate, this.listElement, list, "afterbegin", true);
-
     }
-
 }
