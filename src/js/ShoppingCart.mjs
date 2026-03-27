@@ -1,7 +1,6 @@
 import { renderListWithTemplate, getLocalStorage } from "./utils.mjs";
 
 function cartItemTemplate(item) {
-    // FIX: Changed item.Image to item.Images.PrimaryMedium to match the API data
     return `<li class="cart-card divider">
     <a href="../product_pages/index.html?product=${item.Id}" class="cart-card__image">
       <img src="${item.Images.PrimaryMedium}" alt="${item.Name}" />

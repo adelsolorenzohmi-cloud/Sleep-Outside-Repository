@@ -2,7 +2,6 @@ export function qs(selector, parent = document) {
   return parent.querySelector(selector);
 }
 
-// FIX: Always return an array [] to prevent ".push" or ".map" crashes
 export function getLocalStorage(key) {
   const data = localStorage.getItem(key);
   if (data && data !== "undefined") {
@@ -63,7 +62,6 @@ export async function loadHeaderFooter() {
     const headerElement = document.querySelector("#main-header");
     const footerElement = document.querySelector("#main-footer");
 
-    // Use innerHTML so we don't get double headers/footers
     if (headerElement) headerElement.innerHTML = headerTemplate;
     if (footerElement) footerElement.innerHTML = footerTemplate;
 
@@ -93,7 +91,6 @@ export function alertMessage(message, scroll = true) {
   const main = document.querySelector("main");
   if (main) {
     main.prepend(alert);
-    // Requirement: Ensure the user sees the message immediately
     if (scroll) window.scrollTo(0, 0);
   }
 

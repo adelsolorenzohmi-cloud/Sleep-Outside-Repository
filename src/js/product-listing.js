@@ -7,7 +7,6 @@ async function init() {
 
     const category = getParam("category");
 
-    // Requirement: Update title (Top Products: Tents)
     if (category) {
         const titleElement = document.querySelector("#category-title");
         if (titleElement) {

@@ -12,9 +12,7 @@ async function init() {
     // 3. Find where the products should go
     const listElement = document.querySelector(".product-list");
 
-    if (listElement) {
-        // Pass 'null' for the category on the landing page.
-        // This tells ProductList.mjs to default to 'tents' AND slice(0, 4).
+    if (listElement) {      
         const productList = new ProductList(null, dataSource, listElement);
         productList.init();
     }

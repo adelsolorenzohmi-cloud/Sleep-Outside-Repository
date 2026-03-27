@@ -8,7 +8,7 @@ loadHeaderFooter();
 // 2. Set up the data source (the API)
 const dataSource = new ExternalServices();
 
-// 3. Get the Product ID from the URL (e.g., ?product=880RR)
+// 3. Get the Product ID from the URL
 const productId = getParam("product");
 
 // 4. Create an instance of ProductDetails and start it

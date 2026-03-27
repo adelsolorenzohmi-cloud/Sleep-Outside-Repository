@@ -65,8 +65,7 @@ export default class CheckoutProcess {
             const res = await services.checkout(json);
             setLocalStorage("so-cart", []);
             location.assign("/checkout/success.html");
-        } catch (err) {
-            // Clear old alerts to prevent stacking like in your previous screenshot
+        } catch (err) {           
             const existingAlerts = document.querySelectorAll(".alert");
             existingAlerts.forEach(alert => alert.remove());
 

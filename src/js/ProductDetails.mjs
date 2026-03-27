@@ -23,13 +23,11 @@ export default class ProductDetails {
 
     addToCart() {
         let cartItems = getLocalStorage("so-cart");
-        // Ensure we are working with an array
         if (!Array.isArray(cartItems)) cartItems = [];
 
         cartItems.push(this.product);
         setLocalStorage("so-cart", cartItems);
 
-        // Requirement: Professional UI Feedback
         alertMessage(`${this.product.NameWithoutBrand} added to cart!`);
     }
 
